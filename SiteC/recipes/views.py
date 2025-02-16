@@ -7,9 +7,9 @@ from .serializers import RecipeSerializer
 
 class RecipeList(APIView):
     def get(self, request):
-        recipes = Recipe.objects.all()  # получаем все рецепты из базы данных
-        serializer = RecipeSerializer(recipes, many=True)  # сериализуем их
-        return Response(serializer.data, status=status.HTTP_200_OK)  # возвращаем JSON
+        recipes = Recipe.objects.all()  # Получаем все рецепты из базы данных
+        serializer = RecipeSerializer(recipes, many=True)  # Сериализуем их
+        return Response(serializer.data, status=status.HTTP_200_OK)
 @api_view(['POST'])
 def create_recipe(request):
     if request.method == 'POST':
