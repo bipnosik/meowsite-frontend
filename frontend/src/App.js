@@ -1,38 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import RecipeCard from './RecipeCard'; // Импортируем компонент для отображения рецепта
+import React, { useState, useEffect } from 'react';
+import Sidebar from './Sidebar';
+import RecipeCard from './RecipeCard';
+import RecipeDetails from './RecipeDetails';
+import './App.css';
 
 function App() {
-  const [recipes, setRecipes] = useState([]);  // Состояние для хранения рецептов
-  const [loading, setLoading] = useState(true); // Состояние для отображения "Загрузка"
+  const [recipes, setRecipes] = useState([]);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Загружаем рецепты с API при первом рендере компонента
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/recipes/')  // Указываем URL для получения данных
-      .then(response => response.json())  // Преобразуем ответ в формат JSON
-      .then(data => {
-        setRecipes(data);  // Сохраняем данные в состоянии
-        setLoading(false);  // Останавливаем показ "Загрузка"
-      })
-      .catch(error => {
-        console.error("Error fetching data:", error);  // Логируем ошибку, если что-то пошло не так
-        setLoading(false);  // Останавливаем показ "Загрузка", даже если ошибка
-      });
-  }, []);  // Пустой массив зависимостей: код выполнится только один раз, когда компонент монтируется
+    fetch('http://127.0.0.1:8000/api/recipes/')
+      .then(response => response.json())
+      .then(data => setRecipes(data))
+      .catch(error => console.error("Error fetching data:", error));
+  }, []);
+
+  const handleCardClick = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
     <div className="App">
-      <h1>Recipes</h1>
-      <div>
-        {loading ? (
-          <p>Loading...</p>  // Показываем "Загрузка", если рецепты еще не загружены
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+
+      <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <h1>Try it today</h1>
+        {selectedRecipe ? (
+          <RecipeDetails recipe={selectedRecipe} />
         ) : (
-          recipes.length > 0 ? (
-            recipes.map(recipe => (
-              <RecipeCard key={recipe.id} recipe={recipe} />  // Для каждого рецепта создаем компонент
-            ))
-          ) : (
-            <p>No recipes available</p>  // Если рецептов нет
-          )
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {recipes.map(recipe => (
+              <RecipeCard key={recipe.id} recipe={recipe} onClick={handleCardClick} />
+            ))}
+          </div>
         )}
       </div>
     </div>
