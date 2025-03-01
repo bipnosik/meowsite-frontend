@@ -4,4 +4,4 @@ from .models import Recipe
 class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ['id', 'name', 'ingredients', 'cooking_time', 'calories', 'instructions']
+        fields = ['id', 'name', 'description', 'ingredients', 'image', 'cooking_time', 'calories']

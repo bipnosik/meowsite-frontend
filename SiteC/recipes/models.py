@@ -1,21 +1,16 @@
 from django.db import models
 
-
 class Recipe(models.Model):
-    # Название рецепта
-    name = models.CharField(max_length=100)
-
-    # Описание ингредиентов (можно сделать длинный текст)
+    name = models.CharField(max_length=200)
+    description = models.TextField()
     ingredients = models.TextField()
-
-    # Время приготовления
-    cooking_time = models.IntegerField()
-
-    # Количество калорий
-    calories = models.IntegerField()
-
-    # Инструкции по приготовлению
-    instructions = models.TextField()
+    image = models.ImageField(upload_to='recipes/', blank=True, null=True)
+    cooking_time = models.IntegerField(default=25)
+    calories = models.IntegerField(default=145)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-created_at']

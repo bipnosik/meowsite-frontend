@@ -1,11 +1,10 @@
-# recipes/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import RecipeViewSet
 
-from django.urls import path
-from .views import RecipeList,create_recipe, update_recipe, delete_recipe  # импортируем класс представления, который будет возвращать рецепты
+router = DefaultRouter()
+router.register(r'recipes', RecipeViewSet, basename='recipe')  # <-- добавили basename='recipe'!
 
 urlpatterns = [
-    path('recipes/', RecipeList.as_view(), name='recipe-list'),  # URL для списка рецептов
-    path('recipes/create/', create_recipe, name='create-recipe'), # маршрут для создания рецепта
-    path('recipes/<int:pk>/update/', update_recipe, name='update-recipe'),  # Путь для обновления рецепта
-    path('recipes/<int:pk>/delete/', delete_recipe, name='delete-recipe'),  # Путь для удаления рецепта
+    path('', include(router.urls)),
 ]
