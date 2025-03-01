@@ -4,29 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="487ff332-a88d-4ab2-b1bd-5a0fe959fcb7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/RecipeForm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/SiteC/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/SiteC/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/SiteC/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/SiteC/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/recipes/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/recipes/migrations/0001_initial.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/recipes/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/recipes/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/recipes/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/recipes/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/recipes/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/recipes/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SiteC/recipes/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/SiteC/recipes/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/RecipeCard.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/RecipeCard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/RecipeDetails.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/RecipeDetails.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Sidebar.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
-    </list>
+    <list default="true" id="487ff332-a88d-4ab2-b1bd-5a0fe959fcb7" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
