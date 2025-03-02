@@ -1,15 +1,32 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from .models import Recipe
-from .serializers import RecipeSerializer
-from rest_framework.viewsets import ModelViewSet
+from .serializers import RecipeSerializer, UserSerializer
 
-class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()  # <-- ДОЛЖНО БЫТЬ!
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Ограничение доступа
 
     def get_queryset(self):
         return Recipe.objects.all()
@@ -28,7 +45,7 @@ class RecipeViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)  # Привязываем автора к рецепту
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -36,7 +53,7 @@ class RecipeViewSet(ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=pk)
         serializer = self.serializer_class(recipe, data=request.data, partial=True)
         if serializer.is_valid():
-            self.perform_update(serializer)
+            serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

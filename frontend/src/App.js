@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { FaBars } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import RecipeCard from './RecipeCard';
 import RecipeDetails from './RecipeDetails';
@@ -13,47 +14,49 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetchRecipes();
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      setUser({ accessToken: token, username: localStorage.getItem('username') });
+    }
   }, []);
 
   const fetchRecipes = () => {
-    console.log('Fetching recipes from http://127.0.0.1:8000/api/recipes/');
     fetch(`${BASE_URL}/api/recipes/`)
-      .then(response => {
-        if (!response.ok) {
-          console.error('Server responded with:', response.status, response.statusText);
-          throw new Error('Network response was not ok: ' + response.statusText);
-        }
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-        console.log('Received recipes:', data);
         const updatedRecipes = data.map(recipe => ({
           ...recipe,
           image: recipe.image ? `${BASE_URL}${recipe.image}` : '/default-image.jpg',
         }));
         setRecipes(updatedRecipes);
       })
-      .catch(error => {
-        console.error("Error fetching recipes:", error);
-        setRecipes([
-          { id: 1, name: "Chicken with Rice", image: "/chicken-rice.jpg", description: "Delicious chicken", ingredients: "Chicken, Rice", cooking_time: 25, calories: 145, userCreated: true },
-          { id: 2, name: "Pasta", image: "/pasta.jpg", description: "Tasty pasta", ingredients: "Pasta, Sauce", cooking_time: 25, calories: 145, userCreated: true },
-        ]);
-      });
+      .catch(error => console.error("Error fetching recipes:", error));
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem('accessToken', userData.accessToken);
+    localStorage.setItem('username', userData.username);
   };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('username');
+  };
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const saveRecipe = (recipeData) => {
     const method = editingRecipe ? 'PUT' : 'POST';
     const url = editingRecipe
       ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
       : `${BASE_URL}/api/recipes/`;
+    const token = localStorage.getItem('accessToken');
 
     const formData = new FormData();
     formData.append('name', recipeData.name);
@@ -61,18 +64,15 @@ function App() {
     formData.append('ingredients', recipeData.ingredients.join(', '));
     formData.append('cooking_time', recipeData.cooking_time);
     formData.append('calories', recipeData.calories);
-    if (recipeData.image) {
-      formData.append('image', recipeData.image);
-    }
+    if (recipeData.image) formData.append('image', recipeData.image);
 
     fetch(url, {
       method,
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     })
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to save recipe: ' + response.statusText);
-        }
+        if (!response.ok) throw new Error('Failed to save recipe');
         return response.json();
       })
       .then(() => {
@@ -84,20 +84,23 @@ function App() {
   };
 
   const deleteRecipe = (recipeId) => {
+    const token = localStorage.getItem('accessToken');
     fetch(`${BASE_URL}/api/recipes/${recipeId}/`, {
       method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
     })
       .then(response => {
-        if (!response.ok) {
-          console.error('Server responded with:', response.status, response.statusText);
-          throw new Error('Failed to delete recipe: ' + response.statusText);
-        }
-        setRecipes(prevRecipes => prevRecipes.filter(r => r.id !== recipeId));
+        if (!response.ok) throw new Error('Failed to delete');
+        setRecipes(prev => prev.filter(r => r.id !== recipeId));
       })
       .catch(error => console.error("Error deleting recipe:", error));
   };
 
   const toggleForm = (recipe = null) => {
+    if (!user && !recipe) {
+      alert('Пожалуйста, авторизуйтесь, чтобы добавить рецепт');
+      return;
+    }
     setEditingRecipe(recipe);
     setShowForm(!showForm);
   };
@@ -105,22 +108,32 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <button className="toggle-btn" onClick={toggleSidebar}>
+          <FaBars />
+        </button>
         <Sidebar
           isOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
           onAddRecipe={toggleForm}
+          user={user}
+          onLogout={handleLogout}
+          onLogin={handleLogin}
         />
-
         <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <h1>Try it today</h1>
-          <button onClick={() => toggleForm()} style={{ marginBottom: '20px' }}>+ Add New Recipe</button>
-
-          {showForm && (
-            <RecipeForm
-              onSave={saveRecipe}
-              onClose={toggleForm}
-              initialRecipe={editingRecipe}
-            />
+          {user && (
+            <>
+              <button onClick={() => toggleForm()} style={{ marginBottom: '20px' }}>
+                + Add New Recipe
+              </button>
+              {showForm && (
+                <RecipeForm
+                  onSave={saveRecipe}
+                  onClose={toggleForm}
+                  initialRecipe={editingRecipe}
+                />
+              )}
+            </>
           )}
 
           <Routes>
@@ -132,7 +145,6 @@ function App() {
                     <RecipeCard
                       key={recipe.id}
                       recipe={recipe}
-                      onClick={() => window.location.href = `/recipe/${recipe.id}`} // Временный переход
                       onDelete={deleteRecipe}
                       onEdit={toggleForm}
                     />
