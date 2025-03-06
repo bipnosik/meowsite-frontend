@@ -82,6 +82,30 @@ nav li {
   margin-left: 10px;
 }
 
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.register-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.register-btn:hover {
+  background: #218838;
+}
+
+.modal-register-btn {
+  background: #28a745;
+  color: #fff;
+}
+
 /* Модальное окно */
 .modal-overlay {
   position: fixed;

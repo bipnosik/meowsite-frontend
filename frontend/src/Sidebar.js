@@ -5,8 +5,10 @@ import './Sidebar.css';
 
 function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('')
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
@@ -29,6 +31,28 @@ function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }
       .catch(error => console.error('Ошибка:', error));
   };
 
+  const handleRegisterSubmit = (e) => {
+  e.preventDefault();
+  fetch('http://127.0.0.1:8000/api/register/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username, password, email }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.access) {
+        onLogin({ accessToken: data.access, username });
+        setUsername('');
+        setPassword('');
+        setEmail('');
+        setIsRegisterModalOpen(false);
+    } else {
+      alert('Ошибка регистрации');
+    }
+   })
+   .catch(error => console.error('Ошибка:', error));
+  }
+
   return (
     <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="sidebar-content">
@@ -42,9 +66,14 @@ function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }
               Logout
             </button>
           ) : (
-            <button className="sidebar-btn login-btn" onClick={() => setIsLoginModalOpen(true)}>
-              Login
-            </button>
+            <div className="auth-buttons">
+              <button className="sidebar-btn login-btn" onClick={() => setIsLoginModalOpen(true)}>
+                Login
+              </button>
+              <button className="sidebar-btn register-btn" onClick={() => setIsRegisterModalOpen(true)}>
+                Register
+              </button>
+            </div>
           )}
         </div>
         <nav>
@@ -103,8 +132,50 @@ function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }
           </div>
         </div>
       )}
+
+{isRegisterModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Register</h2>
+            <form onSubmit={handleRegisterSubmit}>
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="modal-input"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="modal-input"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="modal-input"
+              />
+              <div className="modal-buttons">
+                <button type="submit" className="modal-btn modal-register-btn">
+                  Register
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterModalOpen(false)}
+                  className="modal-btn modal-close-btn"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 export default Sidebar;
