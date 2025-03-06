@@ -3,12 +3,21 @@ import { FaHome, FaSearch, FaUser, FaHeart, FaClipboardList, FaPlus } from 'reac
 import { Link } from 'react-router-dom';
 import './Sidebar.css';
 
-function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }) {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+function Sidebar({
+  isOpen,
+  toggleSidebar,
+  onAddRecipe,
+  user,
+  onLogout,
+  onLogin,
+  isLoginModalOpen,
+  setIsLoginModalOpen,
+  isRegisterModalOpen,
+  setIsRegisterModalOpen,
+}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('');
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
@@ -32,26 +41,26 @@ function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }
   };
 
   const handleRegisterSubmit = (e) => {
-  e.preventDefault();
-  fetch('http://127.0.0.1:8000/api/register/', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ username, password, email }),
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.access) {
-        onLogin({ accessToken: data.access, username });
-        setUsername('');
-        setPassword('');
-        setEmail('');
-        setIsRegisterModalOpen(false);
-    } else {
-      alert('Ошибка регистрации');
-    }
-   })
-   .catch(error => console.error('Ошибка:', error));
-  }
+    e.preventDefault();
+    fetch('http://127.0.0.1:8000/api/register/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, email }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.access) {
+          onLogin({ accessToken: data.access, username });
+          setUsername('');
+          setPassword('');
+          setEmail('');
+          setIsRegisterModalOpen(false);
+        } else {
+          alert('Ошибка регистрации');
+        }
+      })
+      .catch(error => console.error('Ошибка:', error));
+  };
 
   return (
     <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
@@ -133,7 +142,8 @@ function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }
         </div>
       )}
 
-{isRegisterModalOpen && (
+      {/* Модальное окно регистрации */}
+      {isRegisterModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>Register</h2>
@@ -178,4 +188,5 @@ function Sidebar({ isOpen, toggleSidebar, onAddRecipe, user, onLogout, onLogin }
     </div>
   );
 }
+
 export default Sidebar;

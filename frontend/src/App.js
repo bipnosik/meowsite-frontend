@@ -15,6 +15,8 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [user, setUser] = useState(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // Управление модальным окном логина
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false); // Управление модальным окном регистрации
 
   useEffect(() => {
     fetchRecipes();
@@ -118,6 +120,10 @@ function App() {
           user={user}
           onLogout={handleLogout}
           onLogin={handleLogin}
+          isLoginModalOpen={isLoginModalOpen}
+          setIsLoginModalOpen={setIsLoginModalOpen}
+          isRegisterModalOpen={isRegisterModalOpen}
+          setIsRegisterModalOpen={setIsRegisterModalOpen}
         />
         <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <h1>Try it today</h1>
@@ -154,7 +160,14 @@ function App() {
             />
             <Route
               path="/recipe/:id"
-              element={<RecipeDetails recipes={recipes} />}
+              element={
+                <RecipeDetails
+                  recipes={recipes}
+                  user={user}
+                  onOpenLogin={() => setIsLoginModalOpen(true)}
+                  onOpenRegister={() => setIsRegisterModalOpen(true)}
+                />
+              }
             />
           </Routes>
         </div>

@@ -1,22 +1,25 @@
 .sidebar {
   width: 250px;
-  background: #f8f8f8;
   height: 100vh;
+  background-color: #f4f4f4;
   position: fixed;
-  transition: width 0.3s ease;
-  overflow-x: hidden;
-  top: 0; /* Учитываем высоту toggle-btn */
+  top: 0;
   left: 0;
-}
-
-.sidebar.closed {
-  width: 0; /* Полностью скрываем Sidebar */
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  will-change: transform; /* Оптимизация анимации */
 }
 
 .sidebar.open {
-  width: 250px;
+  transform: translateX(0);
 }
 
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+/* Остальные стили остаются без изменений */
 .sidebar-content {
   padding: 20px;
 }
@@ -27,15 +30,21 @@
 }
 
 .avatar img {
-  border-radius: 50%;
   width: 50px;
   height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .username {
+  font-size: 18px;
   margin: 10px 0;
-  font-weight: bold;
-  color: #333;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 .sidebar-btn {
@@ -43,28 +52,31 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
-  transition: background 0.3s ease;
-  width: 100%;
-  margin-top: 10px;
+  color: white;
 }
 
 .login-btn {
-  background: #4CAF50;
-  color: #fff;
+  background-color: #007bff;
 }
 
 .login-btn:hover {
-  background: #45a049;
+  background-color: #0056b3;
+}
+
+.register-btn {
+  background-color: #28a745;
+}
+
+.register-btn:hover {
+  background-color: #218838;
 }
 
 .logout-btn {
-  background: #ff4444;
-  color: #fff;
+  background-color: #dc3545;
 }
 
 .logout-btn:hover {
-  background: #cc0000;
+  background-color: #c82333;
 }
 
 nav ul {
@@ -72,41 +84,20 @@ nav ul {
   padding: 0;
 }
 
-nav li {
-  margin: 10px 0;
+nav ul li {
+  margin: 15px 0;
   display: flex;
   align-items: center;
 }
 
+nav ul li svg {
+  margin-right: 10px;
+}
+
 .nav-text {
-  margin-left: 10px;
+  font-size: 16px;
 }
 
-.auth-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.register-btn {
-  background: #28a745;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.register-btn:hover {
-  background: #218838;
-}
-
-.modal-register-btn {
-  background: #28a745;
-  color: #fff;
-}
-
-/* Модальное окно */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -117,40 +108,29 @@ nav li {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050; /* Выше Sidebar, но ниже toggle-btn */
 }
 
 .modal-content {
-  background: #fff;
+  background: white;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.modal-content h2 {
-  margin-top: 0;
   text-align: center;
-  color: #333;
-  font-size: 18px;
 }
 
 .modal-input {
-  display: block;
   width: 100%;
   padding: 8px;
-  margin-bottom: 10px;
+  margin: 10px 0;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
 }
 
 .modal-buttons {
   display: flex;
   gap: 10px;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .modal-btn {
@@ -158,25 +138,29 @@ nav li {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
-  transition: background 0.3s ease;
-  width: 100%;
+  color: white;
 }
 
 .modal-login-btn {
-  background: #4CAF50;
-  color: #fff;
+  background-color: #007bff;
 }
 
 .modal-login-btn:hover {
-  background: #45a049;
+  background-color: #0056b3;
+}
+
+.modal-register-btn {
+  background-color: #28a745;
+}
+
+.modal-register-btn:hover {
+  background-color: #218838;
 }
 
 .modal-close-btn {
-  background: #ff4444;
-  color: #fff;
+  background-color: #6c757d;
 }
 
 .modal-close-btn:hover {
-  background: #cc0000;
+  background-color: #5a6268;
 }

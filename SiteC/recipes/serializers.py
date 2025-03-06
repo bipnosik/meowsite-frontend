@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Recipe
+from .models import Recipe, Comment
 from django.contrib.auth.models import User
 
 
@@ -21,3 +21,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ['id', 'name', 'description', 'ingredients', 'image', 'cooking_time', 'calories', 'user']
         extra_kwargs = {'user': {'read_only': True}}
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'recipe', 'author', 'text', 'created_at']
+        read_only_fields = ['author', 'created_at']

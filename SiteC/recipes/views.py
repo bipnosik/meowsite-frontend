@@ -1,11 +1,13 @@
+from django.db.models import Model
 from rest_framework import viewsets, status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from .models import Recipe
-from .serializers import RecipeSerializer, UserSerializer
+from .models import Recipe, Comment
+from .serializers import RecipeSerializer, UserSerializer, CommentSerializer
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
@@ -61,3 +63,20 @@ class RegisterView(generics.CreateAPIView):
             'refresh': str(refresh),
             "access": str(refresh.access_token),
         })
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        """
+        Фильтруем комментарии по ID рецепта из параметра запроса.
+        """
+        recipe_id = self.request.query_params.get('recipe', None)
+        if recipe_id is not None:
+            return Comment.objects.filter(recipe_id=recipe_id)
+        return Comment.objects.all()
