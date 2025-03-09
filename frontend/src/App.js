@@ -7,7 +7,7 @@ import RecipeDetails from './RecipeDetails';
 import RecipeForm from './RecipeForm';
 import './App.css';
 
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = 'https://meowsite-backend-production.up.railway.app';
 
 function App() {
   const [recipes, setRecipes] = useState([]);
