@@ -19,28 +19,31 @@ function Sidebar({
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ username, password }),
-})
-      .then(response => response.json())
-      .then(data => {
-        if (data.access) {
-          onLogin({ accessToken: data.access, username });
-          setUsername('');
-          setPassword('');
-          setIsLoginModalOpen(false);
-        } else {
-          alert('Ошибка авторизации');
-        }
-      })
-      .catch(error => console.error('Ошибка:', error));
-  };
+const handleLoginSubmit = (e) => {
+  e.preventDefault();
+  fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.access && data.refresh) { // Проверяем оба токена
+        onLogin({ accessToken: data.access, username });
+        localStorage.setItem('accessToken', data.access);
+        localStorage.setItem('refreshToken', data.refresh); // Сохраняем refresh token
+        setUsername('');
+        setPassword('');
+        setIsLoginModalOpen(false);
+      } else {
+        alert('Ошибка авторизации: токены не получены');
+        console.log('Login response:', data); // Отладка ответа сервера
+      }
+    })
+    .catch(error => console.error('Ошибка:', error));
+};
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
