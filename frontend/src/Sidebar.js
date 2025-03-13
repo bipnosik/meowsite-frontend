@@ -36,7 +36,7 @@ function Sidebar({
           setPassword('');
           setIsLoginModalOpen(false);
         } else {
-          alert('Ошибка авторизации.');
+          alert('Ошибка авторизации');
         }
       })
       .catch(error => console.error('Ошибка:', error));
