@@ -1,7 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class SearchHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Связь с пользователем
+    query = models.CharField(max_length=255)  # Поисковый запрос
+    timestamp = models.DateTimeField(auto_now_add=True)  # Время создания записи
 
+    class Meta:
+        ordering = ['-timestamp']  # Сортировка по убыванию времени (новые сверху)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.query}"
 class Recipe(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()

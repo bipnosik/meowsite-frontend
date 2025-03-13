@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Recipe, Comment
+from .models import Recipe, Comment, SearchHistory
 
 
 class CommentAdmin(admin.ModelAdmin):
@@ -23,3 +23,4 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Recipe)
+admin.site.register(SearchHistory)

@@ -95,7 +95,12 @@ function Sidebar({
                 <span className="nav-text">Home</span>
               </Link>
             </li>
-            <li><FaSearch /><span className="nav-text">Browse</span></li>
+            <li>
+              <Link to="/search" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                <FaSearch />
+                <span className="nav-text">Browse</span>
+              </Link>
+            </li>
             <li><FaUser /><span className="nav-text">Profile</span></li>
             <li><FaHeart /><span className="nav-text">Favorites</span></li>
             <li><FaClipboardList /><span className="nav-text">My Recipes</span></li>
