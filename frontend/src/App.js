@@ -42,7 +42,6 @@ function App() {
   const refreshToken = () => {
     const refresh = localStorage.getItem('refreshToken');
     if (!refresh) {
-      console.error('No refresh token available');
       return Promise.reject('No refresh token');
     }
 
@@ -58,7 +57,6 @@ function App() {
       .then(data => {
         localStorage.setItem('accessToken', data.access);
         setUser({ accessToken: data.access, username: localStorage.getItem('username') });
-        console.log('Token refreshed:', data.access);
         return data.access;
       })
       .catch(error => {
@@ -201,9 +199,7 @@ function App() {
           <h1>Try it today</h1>
           {user && (
             <>
-              <button onClick={() => toggleForm()} style={{ marginBottom: '20px' }}>
-                + Add New Recipe
-              </button>
+
               {showForm && (
                 <RecipeForm
                   onSave={saveRecipe}

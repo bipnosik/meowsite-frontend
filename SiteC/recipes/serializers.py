@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ['id', 'name', 'description', 'ingredients', 'image', 'cooking_time', 'calories', 'user']
+        fields = ['id', 'name','user','description', 'ingredients', 'image', 'cooking_time', 'calories']
         extra_kwargs = {'user': {'read_only': True}}
 
 class CommentSerializer(serializers.ModelSerializer):
