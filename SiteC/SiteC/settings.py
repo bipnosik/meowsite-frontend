@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url
+import os
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +29,11 @@ SECRET_KEY = 'django-insecure-js1&x%0j3!ac02z68#p0o_m4h@y#ze2jcj_t4u&lj#)e6@slpj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "meowsite-backend-production.up.railway.app",
+]
 
 
 # Application definition
@@ -49,12 +56,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # CORS (если фронтенд работает на другом домене, например, localhost:3000)
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'https://meowsite-frontend.vercel.app',
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -93,12 +103,22 @@ WSGI_APPLICATION = 'SiteC.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if 'RAILWAY_ENVIRONMENT' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            'postgresql://postgres:esaRJAyekNfTxVEPnXVOrozpBELIbCbj@switchback.proxy.rlwy.net:21154/railway',
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / "db.sqlite3",
+        }
+    }
+
 
 
 # Password validation
@@ -138,6 +158,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -148,3 +171,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Время жизни токена обновления
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://meowsite-backend-production.up.railway.app',
+]

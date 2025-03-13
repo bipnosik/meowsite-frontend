@@ -21,11 +21,13 @@ function Sidebar({
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    fetch('http://127.0.0.1:8000/api/token/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
+    fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ username, password }),
+})
       .then(response => response.json())
       .then(data => {
         if (data.access) {
@@ -42,11 +44,11 @@ function Sidebar({
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
-    fetch('http://127.0.0.1:8000/api/register/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, email }),
-    })
+    fetch(`${process.env.REACT_APP_API_URL}/api/register/`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, password, email }),
+})
       .then(response => response.json())
       .then(data => {
         if (data.access) {

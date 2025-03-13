@@ -9,7 +9,7 @@ function RecipeDetails({ recipes, user, onOpenLogin, onOpenRegister }) {
   const recipe = recipes.find(r => r.id === parseInt(id));
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/comments/?recipe=${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/comments/?recipe=${id}`)
       .then(response => response.json())
       .then(data => setComments(data))
       .catch(error => console.error('Ошибка загрузки комментариев:', error));
@@ -22,14 +22,14 @@ function RecipeDetails({ recipes, user, onOpenLogin, onOpenRegister }) {
       return;
     }
 
-    fetch('http://127.0.0.1:8000/api/comments/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-      },
-      body: JSON.stringify({ recipe: id, text: newComment }),
-    })
+    fetch(`${process.env.REACT_APP_API_URL}/api/comments/`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+  },
+  body: JSON.stringify({ recipe: id, text: newComment }),
+})
       .then(response => {
         if (response.ok) {
           return response.json();
