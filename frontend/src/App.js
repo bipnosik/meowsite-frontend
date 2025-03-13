@@ -36,7 +36,7 @@ function App() {
         }));
         setRecipes(updatedRecipes);
       })
-      .catch(error => console.error("Error fetching recipes:", error));
+      .catch(error => console.error("Error fetching recipes1:", error));
   };
 
   const handleLogin = (userData) => {
