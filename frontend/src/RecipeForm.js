@@ -1,26 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './RecipeForm.css'; // Подключаем CSS (создадим ниже)
 
-function RecipeForm({ onSave, onClose }) {
+function RecipeForm({ onSave, onClose, initialRecipe }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [ingredients, setIngredients] = useState('');
-  const [image, setImage] = useState(null); // Для загрузки изображения
-  const [cookingTime, setCookingTime] = useState(25); // Значение по умолчанию
-  const [calories, setCalories] = useState(145); // Значение по умолчанию
+  const [ingredients, setIngredients] = useState(''); // Оставляем строкой
+  const [image, setImage] = useState(null); // Для файла изображения
+  const [cookingTime, setCookingTime] = useState(25); // По умолчанию 25
+  const [calories, setCalories] = useState(145); // По умолчанию 145
+
+  // Если передан initialRecipe (для редактирования), заполняем форму
+  useEffect(() => {
+    if (initialRecipe) {
+      setName(initialRecipe.name || '');
+      setDescription(initialRecipe.description || '');
+      setIngredients(initialRecipe.ingredients || '');
+      setCookingTime(initialRecipe.cooking_time || 25);
+      setCalories(initialRecipe.calories || 145);
+      // Изображение не устанавливаем, так как это файл, а не URL
+    }
+  }, [initialRecipe]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Создаём объект с данными формы
     const newRecipe = {
       name,
       description,
-      ingredients: ingredients.split(',').map(item => item.trim()), // Разделяем ингредиенты по запятой
-      image: image ? URL.createObjectURL(image) : '', // Превью изображения
-      cooking_time: cookingTime,
-      calories,
+      ingredients, // Отправляем как строку, бэкенд сам разберётся
+      cooking_time: parseInt(cookingTime), // Преобразуем в число
+      calories: parseInt(calories), // Преобразуем в число
+      image: image || null, // Отправляем файл или null
     };
-    onSave(newRecipe);
-    onClose();
-    // Сброс формы
+
+    onSave(newRecipe); // Передаём данные в App.js для отправки на сервер
+    onClose(); // Закрываем форму
+
+    // Сброс формы после отправки
     setName('');
     setDescription('');
     setIngredients('');
@@ -30,68 +46,73 @@ function RecipeForm({ onSave, onClose }) {
   };
 
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file); // Устанавливаем файл
+    }
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      background: '#fff',
-      padding: '20px',
-      borderRadius: '8px',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-      zIndex: 1000,
-      width: '400px',
-    }}>
-      <h2>Create New Recipe</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Recipe Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={{ marginBottom: '10px', width: '100%' }}
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          style={{ marginBottom: '10px', width: '100%', height: '100px' }}
-        />
-        <textarea
-          placeholder="Ingredients (comma-separated)"
-          value={ingredients}
-          onChange={(e) => setIngredients(e.target.value)}
-          required
-          style={{ marginBottom: '10px', width: '100%', height: '80px' }}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          style={{ marginBottom: '10px' }}
-        />
-        <input
-          type="number"
-          placeholder="Cooking Time (mins)"
-          value={cookingTime}
-          onChange={(e) => setCookingTime(e.target.value)}
-          style={{ marginBottom: '10px', width: '100%' }}
-        />
-        <input
-          type="number"
-          placeholder="Calories (kcal)"
-          value={calories}
-          onChange={(e) => setCalories(e.target.value)}
-          style={{ marginBottom: '10px', width: '100%' }}
-        />
-        <button type="submit" style={{ marginRight: '10px' }}>Save</button>
-        <button type="button" onClick={onClose}>Cancel</button>
+    <div className="recipe-form-overlay">
+      <form className="recipe-form" onSubmit={handleSubmit}>
+        <h2>{initialRecipe ? 'Edit Recipe' : 'Create New Recipe'}</h2>
+        <div className="form-group">
+          <input
+            type="text"
+            placeholder="Recipe Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <textarea
+            placeholder="Ingredients (comma-separated)"
+            value={ingredients}
+            onChange={(e) => setIngredients(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          {image && <p>Selected: {image.name}</p>} {/* Показываем имя файла */}
+        </div>
+        <div className="form-group">
+          <input
+            type="number"
+            placeholder="Cooking Time (mins)"
+            value={cookingTime}
+            onChange={(e) => setCookingTime(Math.max(1, e.target.value))} // Не меньше 1
+            min="1"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="number"
+            placeholder="Calories (kcal)"
+            value={calories}
+            onChange={(e) => setCalories(Math.max(0, e.target.value))} // Не меньше 0
+            min="0"
+            required
+          />
+        </div>
+        <div className="form-buttons">
+          <button type="submit" className="save-btn">Save</button>
+          <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
+        </div>
       </form>
     </div>
   );

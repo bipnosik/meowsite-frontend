@@ -15,8 +15,8 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [user, setUser] = useState(null);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // Управление модальным окном логина
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false); // Управление модальным окном регистрации
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   useEffect(() => {
     fetchRecipes();
@@ -39,6 +39,37 @@ function App() {
       .catch(error => console.error("Error fetching recipes:", error));
   };
 
+  const refreshToken = () => {
+    const refresh = localStorage.getItem('refreshToken');
+    if (!refresh) {
+      console.error('No refresh token available');
+      return Promise.reject('No refresh token');
+    }
+
+    return fetch(`${BASE_URL}/api/token/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh }),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Refresh token failed');
+        return response.json();
+      })
+      .then(data => {
+        localStorage.setItem('accessToken', data.access);
+        setUser({ accessToken: data.access, username: localStorage.getItem('username') });
+        console.log('Token refreshed:', data.access);
+        return data.access;
+      })
+      .catch(error => {
+        console.error('Error refreshing token:', error);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/';
+        throw error;
+      });
+  };
+
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('accessToken', userData.accessToken);
@@ -49,40 +80,81 @@ function App() {
     setUser(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('username');
+    localStorage.removeItem('refreshToken');
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const saveRecipe = (recipeData) => {
     const method = editingRecipe ? 'PUT' : 'POST';
-    const url = editingRecipe
+    const url = editingRecipe && editingRecipe.id
       ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
       : `${BASE_URL}/api/recipes/`;
-    const token = localStorage.getItem('accessToken');
+    let token = localStorage.getItem('accessToken');
+
+    if (!token) {
+      alert('Вы не авторизованы. Пожалуйста, войдите заново.');
+      window.location.href = '/';
+      return;
+    }
 
     const formData = new FormData();
     formData.append('name', recipeData.name);
     formData.append('description', recipeData.description);
-    formData.append('ingredients', recipeData.ingredients.join(', '));
+    formData.append('ingredients', recipeData.ingredients);
     formData.append('cooking_time', recipeData.cooking_time);
     formData.append('calories', recipeData.calories);
     if (recipeData.image) formData.append('image', recipeData.image);
 
-    fetch(url, {
-      method,
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData,
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to save recipe');
-        return response.json();
+    console.log('Sending data:', {
+      name: recipeData.name,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      cooking_time: recipeData.cooking_time,
+      calories: recipeData.calories,
+      image: recipeData.image ? recipeData.image.name : 'No image',
+    });
+
+    const sendRequest = (accessToken) => {
+      return fetch(url, {
+        method,
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        body: formData,
       })
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.text().then(text => {
+            console.log('Response body:', text);
+            if (!response.ok) {
+              throw new Error(`Failed to save recipe: ${response.status} - ${text}`);
+            }
+            return JSON.parse(text);
+          });
+        });
+    };
+
+    sendRequest(token)
       .then(() => {
         fetchRecipes();
         setShowForm(false);
         setEditingRecipe(null);
       })
-      .catch(error => console.error("Error saving recipe:", error));
+      .catch(error => {
+        if (error.message.includes('401')) {
+          refreshToken()
+            .then(newToken => sendRequest(newToken))
+            .then(() => {
+              fetchRecipes();
+              setShowForm(false);
+              setEditingRecipe(null);
+            })
+            .catch(() => {
+              alert('Сессия истекла. Пожалуйста, войдите заново.');
+            });
+        } else {
+          console.error("Error saving recipe:", error);
+        }
+      });
   };
 
   const deleteRecipe = (recipeId) => {
@@ -103,7 +175,7 @@ function App() {
       alert('Пожалуйста, авторизуйтесь, чтобы добавить рецепт');
       return;
     }
-    setEditingRecipe(recipe);
+    setEditingRecipe(recipe); // Устанавливаем рецепт для редактирования
     setShowForm(!showForm);
   };
 
