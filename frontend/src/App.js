@@ -154,7 +154,7 @@ const saveRecipe = (recipeData) => {
 
   const toggleForm = (recipe = null) => {
     if (!user && !recipe) {
-      alert('Пожалуйста, авторизуйтесь, чтобы добавить рецепт');
+      alert('Пожалуйста, авторизуйтесь, чтобы добавить рецепт!');
       return;
     }
     setEditingRecipe(recipe);
