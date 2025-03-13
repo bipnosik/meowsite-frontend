@@ -1,8 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Определите BASE_URL в файле или получите через пропс
+const BASE_URL = 'https://meowsite-backend-production.up.railway.app'; // Замените на ваш сервер
+
 function RecipeCard({ recipe, onClick, onDelete, onEdit }) {
   const categories = Array.isArray(recipe.categories) ? recipe.categories.slice(0, 2) : [];
+
+  // Формируем URL изображения
+  const imageUrl = recipe.image
+    ? recipe.image.startsWith('http')
+      ? recipe.image // Если полный URL уже есть
+      : `${BASE_URL}${recipe.image}` // Добавляем базовый URL к относительному пути
+    : '/default-image.jpg'; // Запасной вариант, если изображения нет
 
   return (
     <div
@@ -11,7 +21,7 @@ function RecipeCard({ recipe, onClick, onDelete, onEdit }) {
     >
       <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         <img
-          src={recipe.image && recipe.image.startsWith('http') ? recipe.image : `http://127.0.0.1:8000${recipe.image || ''}`}
+          src={imageUrl}
           alt={recipe.name}
           style={styles.image}
         />
@@ -45,6 +55,8 @@ function RecipeCard({ recipe, onClick, onDelete, onEdit }) {
     </div>
   );
 }
+
+// Стили остаются без изменений
 const styles = {
   card: {
     width: '230px',
@@ -57,9 +69,6 @@ const styles = {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     background: '#fff',
     overflow: 'hidden',
-  },
-  userRecipe: {
-    borderColor: '#4CAF50', // Стиль для пользовательских рецептов
   },
   image: {
     width: '100%',
@@ -108,7 +117,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '12px',
     transition: 'background 0.3s ease',
-    ':hover': { background: '#45a049' }, // Не работает в inline-стилях, нужно через CSS
   },
   deleteButton: {
     background: '#ff4444',
@@ -119,7 +127,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '12px',
     transition: 'background 0.3s ease',
-    ':hover': { background: '#cc0000' }, // Не работает в inline-стилях, нужно через CSS
   },
 };
 

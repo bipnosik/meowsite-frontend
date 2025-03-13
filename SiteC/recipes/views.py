@@ -3,11 +3,8 @@ from rest_framework import viewsets, status, generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-<<<<<<< HEAD
 from rest_framework.filters import SearchFilter
 from django.db.models import Q
-=======
->>>>>>> 551dfc73fc1b01679bc1c549d2e4e5c6205f5224
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -27,7 +24,7 @@ class SearchHistoryViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 class RecipeViewSet(viewsets.ModelViewSet):
-<<<<<<< HEAD
+
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     parser_classes = (MultiPartParser, FormParser)
@@ -51,7 +48,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         print("Параметры запроса:", request.query_params)
         queryset = self.filter_queryset(self.get_queryset())
         print("Отфильтрованный queryset:", queryset)
-=======
+
     queryset = Recipe.objects.all()  # Все рецепты по умолчанию
     serializer_class = RecipeSerializer  # Сериализатор для рецептов
     parser_classes = (MultiPartParser, FormParser)  # Поддержка multipart/form-data для загрузки изображений
@@ -65,7 +62,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         # Вывод списка всех рецептов
         print("Запрос к /api/recipes/")  # Лог для отладки
         queryset = self.get_queryset()
->>>>>>> 551dfc73fc1b01679bc1c549d2e4e5c6205f5224
+
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)  # Возвращаем сериализованные данные
 

@@ -100,41 +100,45 @@ function App() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const saveRecipe = (recipeData) => {
-    const method = editingRecipe && editingRecipe.id ? 'PUT' : 'POST';
-    const url = editingRecipe && editingRecipe.id
-      ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
-      : `${BASE_URL}/api/recipes/`;
+const saveRecipe = (recipeData) => {
+  const method = editingRecipe && editingRecipe.id ? 'PUT' : 'POST';
+  const url = editingRecipe && editingRecipe.id
+    ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
+    : `${BASE_URL}/api/recipes/`;
 
-    if (editingRecipe && !editingRecipe.id) {
-      console.error('Editing recipe without id:', editingRecipe);
-      alert('Ошибка: рецепт для редактирования не имеет id');
-      return;
-    }
+  // Создаем объект FormData
+  const formData = new FormData();
+  formData.append('name', recipeData.name);
+  formData.append('description', recipeData.description);
+  formData.append('ingredients', recipeData.ingredients);
+  formData.append('cooking_time', recipeData.cooking_time || 25);
+  formData.append('calories', recipeData.calories || 145);
+  if (recipeData.image) {
+    formData.append('image', recipeData.image); // Предполагается, что image — это объект File
+  }
 
-    fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.accessToken}`,
-      },
-      body: JSON.stringify(recipeData),
+  fetch(url, {
+    method: method,
+    headers: {
+      Authorization: `Bearer ${user.accessToken}`, // Оставляем только заголовок авторизации
+      // 'Content-Type' не нужен, браузер сам установит 'multipart/form-data'
+    },
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(`Failed to save recipe: ${response.status} - ${JSON.stringify(err)}`);
+        });
+      }
+      return response.json();
     })
-      .then(response => {
-        if (!response.ok) {
-          return response.json().then(err => {
-            throw new Error(`Failed to save recipe: ${response.status} - ${JSON.stringify(err)}`);
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        setShowForm(false);
-        fetchRecipes();
-      })
-      .catch(error => console.error('Error saving recipe:', error));
-  };
-
+    .then(data => {
+      setShowForm(false);
+      fetchRecipes();
+    })
+    .catch(error => console.error('Error saving recipe:', error));
+}
   const deleteRecipe = (recipeId) => {
     const token = localStorage.getItem('accessToken');
     fetch(`${BASE_URL}/api/recipes/${recipeId}/`, {
@@ -179,9 +183,6 @@ function App() {
           <h1>Try it today</h1>
           {user && (
             <>
-              <button onClick={() => toggleForm()} style={{ marginBottom: '20px' }}>
-                + Add New Recipe
-              </button>
               {showForm && (
                 <RecipeForm
                   onSave={saveRecipe}

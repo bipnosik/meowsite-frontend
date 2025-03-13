@@ -19,11 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-<<<<<<< HEAD
+
         fields = ['id', 'name', 'description', 'ingredients', 'cooking_time', 'calories', 'image', 'user']
-=======
+
         fields = ['id', 'name','user','description', 'ingredients', 'image', 'cooking_time', 'calories']
->>>>>>> 551dfc73fc1b01679bc1c549d2e4e5c6205f5224
+
         extra_kwargs = {'user': {'read_only': True}}
 
     def get_userCreated(self, obj):
