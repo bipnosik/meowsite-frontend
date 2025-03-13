@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import RecipeCard from './RecipeCard';
 import RecipeDetails from './RecipeDetails';
 import RecipeForm from './RecipeForm';
+import SearchPage from './SearchPage'; // Импортируем новую страницу
 import './App.css';
 
 const BASE_URL = 'http://127.0.0.1:8000';
@@ -15,8 +16,8 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [user, setUser] = useState(null);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // Управление модальным окном логина
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false); // Управление модальным окном регистрации
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   useEffect(() => {
     fetchRecipes();
@@ -37,6 +38,22 @@ function App() {
         setRecipes(updatedRecipes);
       })
       .catch(error => console.error("Error fetching recipes:", error));
+  };
+
+  const handleSearch = (query, setSearchResults) => {
+  fetch(`${BASE_URL}/api/recipes/?search=${query}`)
+    .then(response => {
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    })
+    .then(data => {
+      const updatedResults = data.map(recipe => ({
+        ...recipe,
+        image: recipe.image ? `${BASE_URL}${recipe.image}` : '/default-image.jpg',
+      }));
+      setSearchResults(updatedResults);
+    })
+    .catch(error => console.error("Error searching recipes:", error));
   };
 
   const handleLogin = (userData) => {
@@ -168,6 +185,10 @@ function App() {
                   onOpenRegister={() => setIsRegisterModalOpen(true)}
                 />
               }
+            />
+            <Route
+              path="/search"
+              element={<SearchPage user={user} onSearch={handleSearch} />}
             />
           </Routes>
         </div>

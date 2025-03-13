@@ -1,26 +1,52 @@
 from django.db.models import Model
-from rest_framework import viewsets, status, generics, permissions
+from rest_framework import viewsets, status, generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.filters import SearchFilter
+from django.db.models import Q
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from .models import Recipe, Comment
-from .serializers import RecipeSerializer, UserSerializer, CommentSerializer
+from .models import Recipe, Comment, SearchHistory
+from .serializers import RecipeSerializer, UserSerializer, CommentSerializer, SearchHistorySerializer
+
+class SearchHistoryViewSet(viewsets.ModelViewSet):
+    serializer_class = SearchHistorySerializer
+    permission_classes = [IsAuthenticated]  # Только авторизованные пользователи
+
+    def get_queryset(self):
+        # Возвращаем последние 20 запросов текущего пользователя
+        return SearchHistory.objects.filter(user=self.request.user)[:20]
+
+    def perform_create(self, serializer):
+        # При создании записи автоматически привязываем текущего пользователя
+        serializer.save(user=self.request.user)
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Ограничение доступа
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
 
     def get_queryset(self):
-        return Recipe.objects.all()
+        queryset = Recipe.objects.all()
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            # Поиск без учета регистра по всем указанным полям
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(ingredients__icontains=search_query)
+            )
+        return queryset
 
     def list(self, request, *args, **kwargs):
         print("Запрос к /api/recipes/")
-        queryset = self.get_queryset()
+        print("Параметры запроса:", request.query_params)
+        queryset = self.filter_queryset(self.get_queryset())
+        print("Отфильтрованный queryset:", queryset)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
