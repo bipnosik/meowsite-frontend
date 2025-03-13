@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import RecipeCard from './RecipeCard';
 
+const BASE_URL = 'https://meowsite-backend-production.up.railway.app';
+
 function SearchPage({ user, onSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState([]);
@@ -16,7 +18,7 @@ function SearchPage({ user, onSearch }) {
 
   const fetchSearchHistory = () => {
     const token = localStorage.getItem('accessToken');
-    fetch('http://127.0.0.1:8000/api/search-history/', {
+    fetch(`${BASE_URL}/api/search-history/`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -24,7 +26,6 @@ function SearchPage({ user, onSearch }) {
     })
       .then(response => response.json())
       .then(data => {
-        // Убираем дубли из данных с сервера и ограничиваем до 10
         const uniqueHistory = [];
         const seenQueries = new Set();
         for (const item of data) {
@@ -42,15 +43,13 @@ function SearchPage({ user, onSearch }) {
   const saveSearchQuery = (query) => {
     if (!query) return;
 
-    // Убираем существующий запрос из истории, если он есть
     const filteredHistory = searchHistory.filter(item => item.query !== query);
-    // Добавляем новый запрос наверх и обрезаем до 10
     const updatedHistory = [{ query }, ...filteredHistory].slice(0, 10);
     setSearchHistory(updatedHistory);
 
     if (user) {
       const token = localStorage.getItem('accessToken');
-      fetch('http://127.0.0.1:8000/api/search-history/', {
+      fetch(`${BASE_URL}/api/search-history/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +59,7 @@ function SearchPage({ user, onSearch }) {
       })
         .then(response => {
           if (response.ok) {
-            fetchSearchHistory(); // Синхронизируем с сервером
+            fetchSearchHistory();
           }
         })
         .catch(error => console.error('Ошибка сохранения истории:', error));
@@ -79,7 +78,7 @@ function SearchPage({ user, onSearch }) {
   const handleHistoryClick = (query) => {
     const queryText = query.query;
     setSearchQuery(queryText);
-    saveSearchQuery(queryText); // Переносим наверх без дублей
+    saveSearchQuery(queryText);
     onSearch(queryText, setSearchResults);
   };
 

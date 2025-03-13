@@ -5,7 +5,7 @@ import Sidebar from './Sidebar';
 import RecipeCard from './RecipeCard';
 import RecipeDetails from './RecipeDetails';
 import RecipeForm from './RecipeForm';
-import SearchPage from './SearchPage'; // Импортируем новую страницу
+import SearchPage from './SearchPage';
 import './App.css';
 
 const BASE_URL = 'https://meowsite-backend-production.up.railway.app';
@@ -37,23 +37,23 @@ function App() {
         }));
         setRecipes(updatedRecipes);
       })
-      .catch(error => console.error("Error fetching recipes1:", error));
+      .catch(error => console.error("Error fetching recipes:", error));
   };
 
   const handleSearch = (query, setSearchResults) => {
-  fetch(`${BASE_URL}/api/recipes/?search=${query}`)
-    .then(response => {
-      if (!response.ok) throw new Error('Search failed');
-      return response.json();
-    })
-    .then(data => {
-      const updatedResults = data.map(recipe => ({
-        ...recipe,
-        image: recipe.image ? `${BASE_URL}${recipe.image}` : '/default-image.jpg',
-      }));
-      setSearchResults(updatedResults);
-    })
-    .catch(error => console.error("Error searching recipes:", error));
+    fetch(`${BASE_URL}/api/recipes/?search=${query}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Search failed');
+        return response.json();
+      })
+      .then(data => {
+        const updatedResults = data.map(recipe => ({
+          ...recipe,
+          image: recipe.image ? `${BASE_URL}${recipe.image}` : '/default-image.jpg',
+        }));
+        setSearchResults(updatedResults);
+      })
+      .catch(error => console.error("Error searching recipes:", error));
   };
 
   const refreshToken = () => {
@@ -101,75 +101,38 @@ function App() {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const saveRecipe = (recipeData) => {
-    const method = editingRecipe ? 'PUT' : 'POST';
+    const method = editingRecipe && editingRecipe.id ? 'PUT' : 'POST';
     const url = editingRecipe && editingRecipe.id
       ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
       : `${BASE_URL}/api/recipes/`;
-    let token = localStorage.getItem('accessToken');
 
-    if (!token) {
-      alert('Вы не авторизованы. Пожалуйста, войдите заново.');
-      window.location.href = '/';
+    if (editingRecipe && !editingRecipe.id) {
+      console.error('Editing recipe without id:', editingRecipe);
+      alert('Ошибка: рецепт для редактирования не имеет id');
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', recipeData.name);
-    formData.append('description', recipeData.description);
-    formData.append('ingredients', recipeData.ingredients);
-    formData.append('cooking_time', recipeData.cooking_time);
-    formData.append('calories', recipeData.calories);
-    if (recipeData.image) formData.append('image', recipeData.image);
-
-    console.log('Sending data:', {
-      name: recipeData.name,
-      description: recipeData.description,
-      ingredients: recipeData.ingredients,
-      cooking_time: recipeData.cooking_time,
-      calories: recipeData.calories,
-      image: recipeData.image ? recipeData.image.name : 'No image',
-    });
-
-    const sendRequest = (accessToken) => {
-      return fetch(url, {
-        method,
-        headers: { 'Authorization': `Bearer ${accessToken}` },
-        body: formData,
-      })
-        .then(response => {
-          console.log('Response status:', response.status);
-          return response.text().then(text => {
-            console.log('Response body:', text);
-            if (!response.ok) {
-              throw new Error(`Failed to save recipe: ${response.status} - ${text}`);
-            }
-            return JSON.parse(text);
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.accessToken}`,
+      },
+      body: JSON.stringify(recipeData),
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(`Failed to save recipe: ${response.status} - ${JSON.stringify(err)}`);
           });
-        });
-    };
-
-    sendRequest(token)
-      .then(() => {
-        fetchRecipes();
-        setShowForm(false);
-        setEditingRecipe(null);
-      })
-      .catch(error => {
-        if (error.message.includes('401')) {
-          refreshToken()
-            .then(newToken => sendRequest(newToken))
-            .then(() => {
-              fetchRecipes();
-              setShowForm(false);
-              setEditingRecipe(null);
-            })
-            .catch(() => {
-              alert('Сессия истекла. Пожалуйста, войдите заново.');
-            });
-        } else {
-          console.error("Error saving recipe:", error);
         }
-      });
+        return response.json();
+      })
+      .then(data => {
+        setShowForm(false);
+        fetchRecipes();
+      })
+      .catch(error => console.error('Error saving recipe:', error));
   };
 
   const deleteRecipe = (recipeId) => {
@@ -190,7 +153,7 @@ function App() {
       alert('Пожалуйста, авторизуйтесь, чтобы добавить рецепт');
       return;
     }
-    setEditingRecipe(recipe); // Устанавливаем рецепт для редактирования
+    setEditingRecipe(recipe);
     setShowForm(!showForm);
   };
 
@@ -216,7 +179,9 @@ function App() {
           <h1>Try it today</h1>
           {user && (
             <>
-
+              <button onClick={() => toggleForm()} style={{ marginBottom: '20px' }}>
+                + Add New Recipe
+              </button>
               {showForm && (
                 <RecipeForm
                   onSave={saveRecipe}
