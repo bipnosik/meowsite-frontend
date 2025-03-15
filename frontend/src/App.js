@@ -111,6 +111,7 @@ const saveRecipe = (recipeData) => {
   formData.append('name', recipeData.name);
   formData.append('description', recipeData.description);
   formData.append('ingredients', recipeData.ingredients);
+  formData.append('instructions', recipeData.instructions);
   formData.append('cooking_time', recipeData.cooking_time || 25);
   formData.append('calories', recipeData.calories || 145);
   if (recipeData.image) {
