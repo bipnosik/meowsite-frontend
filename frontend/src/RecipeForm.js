@@ -5,7 +5,7 @@ function RecipeForm({ onSave, onClose, initialRecipe }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [ingredients, setIngredients] = useState(''); // Оставляем строкой
-  const [image, setImage] = useState(null); // Для файла изображения
+  const [image, setImage] = useState(null); // Для файла изобasdasddражения
   const [cookingTime, setCookingTime] = useState(25); // По умолчанию 25
   const [calories, setCalories] = useState(145); // По умолчанию 145
   const [instructions, setInstructions] = useState(''); // Новое поле для инструкций
