@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaHome, FaSearch, FaUser, FaHeart, FaClipboardList, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './Sidebar.css';
+import defaultAvatar from './assets/image_12901130200388967001.gif'; // Импорт изображения
 
 function Sidebar({
   isOpen,
@@ -19,39 +20,39 @@ function Sidebar({
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
 
-const handleLoginSubmit = (e) => {
-  e.preventDefault();
-  fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.access && data.refresh) { // Проверяем оба токена
-        onLogin({ accessToken: data.access, username });
-        localStorage.setItem('accessToken', data.access);
-        localStorage.setItem('refreshToken', data.refresh); // Сохраняем refresh token
-        setUsername('');
-        setPassword('');
-        setIsLoginModalOpen(false);
-      } else {
-        alert('Ошибка авторизации: токены не получены');
-        console.log('Login response:', data); // Отладка ответа сервера
-      }
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
     })
-    .catch(error => console.error('Ошибка:', error));
-};
+      .then(response => response.json())
+      .then(data => {
+        if (data.access && data.refresh) {
+          onLogin({ accessToken: data.access, username });
+          localStorage.setItem('accessToken', data.access);
+          localStorage.setItem('refreshToken', data.refresh);
+          setUsername('');
+          setPassword('');
+          setIsLoginModalOpen(false);
+        } else {
+          alert('Ошибка авторизации: токены не получены');
+          console.log('Login response:', data);
+        }
+      })
+      .catch(error => console.error('Ошибка:', error));
+  };
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
     fetch(`${process.env.REACT_APP_API_URL}/api/register/`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username, password, email }),
-})
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, email }),
+    })
       .then(response => response.json())
       .then(data => {
         if (data.access) {
@@ -72,7 +73,7 @@ const handleLoginSubmit = (e) => {
       <div className="sidebar-content">
         <div className="user-info">
           <div className="avatar">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" />
+            <img src={defaultAvatar} alt="User Avatar" /> {/* Замена placeholder */}
           </div>
           <p className="username">{user ? user.username : 'Guest'}</p>
           {user ? (
