@@ -8,7 +8,7 @@ function RecipeCard({ recipe, onClick, onDelete, onEdit, user }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const categories = Array.isArray(recipe.categories) ? recipe.categories.slice(0, 2) : [];
 
-  // Проверка статуса избранного при загрузке компонента
+  // Проверка статуса избрhhанного при загрузке компонента
   useEffect(() => {
     if (user) {
       checkFavoriteStatus();
