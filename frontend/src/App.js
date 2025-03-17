@@ -6,6 +6,7 @@ import RecipeCard from './RecipeCard';
 import RecipeDetails from './RecipeDetails';
 import RecipeForm from './RecipeForm';
 import SearchPage from './SearchPage';
+import FavoritesPage from './FavoritesPage';
 import './App.css';
 
 const BASE_URL = 'https://meowsite-backend-production.up.railway.app';
@@ -100,46 +101,45 @@ function App() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-const saveRecipe = (recipeData) => {
-  const method = editingRecipe && editingRecipe.id ? 'PUT' : 'POST';
-  const url = editingRecipe && editingRecipe.id
-    ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
-    : `${BASE_URL}/api/recipes/`;
+  const saveRecipe = (recipeData) => {
+    const method = editingRecipe && editingRecipe.id ? 'PUT' : 'POST';
+    const url = editingRecipe && editingRecipe.id
+      ? `${BASE_URL}/api/recipes/${editingRecipe.id}/`
+      : `${BASE_URL}/api/recipes/`;
 
-  // Создаем объект FormData
-  const formData = new FormData();
-  formData.append('name', recipeData.name);
-  formData.append('description', recipeData.description);
-  formData.append('ingredients', recipeData.ingredients);
-  formData.append('instructions', recipeData.instructions);
-  formData.append('cooking_time', recipeData.cooking_time || 25);
-  formData.append('calories', recipeData.calories || 145);
-  if (recipeData.image) {
-    formData.append('image', recipeData.image); // Предполагается, что image — это объект File
-  }
+    const formData = new FormData();
+    formData.append('name', recipeData.name);
+    formData.append('description', recipeData.description);
+    formData.append('ingredients', recipeData.ingredients);
+    formData.append('instructions', recipeData.instructions);
+    formData.append('cooking_time', recipeData.cooking_time || 25);
+    formData.append('calories', recipeData.calories || 145);
+    if (recipeData.image) {
+      formData.append('image', recipeData.image);
+    }
 
-  fetch(url, {
-    method: method,
-    headers: {
-      Authorization: `Bearer ${user.accessToken}`, // Оставляем только заголовок авторизации
-      // 'Content-Type' не нужен, браузер сам установит 'multipart/form-data'
-    },
-    body: formData,
-  })
-    .then(response => {
-      if (!response.ok) {
-        return response.json().then(err => {
-          throw new Error(`Failed to save recipe: ${response.status} - ${JSON.stringify(err)}`);
-        });
-      }
-      return response.json();
+    fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`,
+      },
+      body: formData,
     })
-    .then(data => {
-      setShowForm(false);
-      fetchRecipes();
-    })
-    .catch(error => console.error('Error saving recipe:', error));
-}
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(`Failed to save recipe: ${response.status} - ${JSON.stringify(err)}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        setShowForm(false);
+        fetchRecipes();
+      })
+      .catch(error => console.error('Error saving recipe:', error));
+  };
+
   const deleteRecipe = (recipeId) => {
     const token = localStorage.getItem('accessToken');
     fetch(`${BASE_URL}/api/recipes/${recipeId}/`, {
@@ -205,6 +205,7 @@ const saveRecipe = (recipeData) => {
                       recipe={recipe}
                       onDelete={deleteRecipe}
                       onEdit={toggleForm}
+                      user={user}
                     />
                   ))}
                 </div>
@@ -224,6 +225,10 @@ const saveRecipe = (recipeData) => {
             <Route
               path="/search"
               element={<SearchPage user={user} onSearch={handleSearch} />}
+            />
+            <Route
+              path="/favorites"
+              element={<FavoritesPage user={user} />}
             />
           </Routes>
         </div>

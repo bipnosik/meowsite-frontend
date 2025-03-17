@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaHome, FaSearch, FaUser, FaHeart, FaClipboardList, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './Sidebar.css';
-import defaultAvatar from './assets/image_12901130200388967001.gif'; // Импорт изображения
+import defaultAvatar from './assets/image_12901130200388967001.gif';
 
 function Sidebar({
   isOpen,
@@ -73,7 +73,7 @@ function Sidebar({
       <div className="sidebar-content">
         <div className="user-info">
           <div className="avatar">
-            <img src={defaultAvatar} alt="User Avatar" /> {/* Замена placeholder */}
+            <img src={defaultAvatar} alt="User Avatar" />
           </div>
           <p className="username">{user ? user.username : 'Guest'}</p>
           {user ? (
@@ -105,9 +105,24 @@ function Sidebar({
                 <span className="nav-text">Browse</span>
               </Link>
             </li>
-            <li><FaUser /><span className="nav-text">Profile</span></li>
-            <li><FaHeart /><span className="nav-text">Favorites</span></li>
-            <li><FaClipboardList /><span className="nav-text">My Recipes</span></li>
+            <li>
+              <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                <FaUser />
+                <span className="nav-text">Profile</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/favorites" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                <FaHeart />
+                <span className="nav-text">Favorites</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/my-recipes" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                <FaClipboardList />
+                <span className="nav-text">My Recipes</span>
+              </Link>
+            </li>
             <li onClick={onAddRecipe} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
               <FaPlus />
               <span className="nav-text">Add Recipe</span>
