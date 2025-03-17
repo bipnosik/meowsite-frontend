@@ -1,29 +1,26 @@
+# recipes/serializers.py
 from rest_framework import serializers
-from .models import Recipe, Comment, SearchHistory
+from .models import Recipe, Comment, SearchHistory, Favorite  # Добавили Favorite
 from django.contrib.auth.models import User
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'password', 'email')
-        extra_kwargs = {'password' : {'write_only': True}}
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            username = validated_data["username"],
-            email = validated_data.get('email', ''),
-            password = validated_data['password']
+            username=validated_data["username"],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
         )
         return user
+
 class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-
-        fields = ['id', 'name', 'description', 'ingredients', 'cooking_time', 'calories', 'image', 'user']
-
-        fields = ['id', 'name','user','description', 'ingredients', 'image', 'cooking_time', 'calories']
-
+        fields = ['id', 'name', 'user', 'description', 'ingredients', 'image', 'cooking_time', 'calories']
         extra_kwargs = {'user': {'read_only': True}}
 
     def get_userCreated(self, obj):
@@ -31,6 +28,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if request and hasattr(request, 'user'):
             return obj.user == request.user
         return False
+
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
 
@@ -43,3 +41,10 @@ class SearchHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SearchHistory
         fields = ['query']
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    recipe = RecipeSerializer(read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ['id', 'recipe', 'added_at']

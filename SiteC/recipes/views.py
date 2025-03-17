@@ -8,8 +8,42 @@ from django.db.models import Q
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from .models import Recipe, Comment, SearchHistory
-from .serializers import RecipeSerializer, UserSerializer, CommentSerializer, SearchHistorySerializer
+from .models import Recipe, Comment, SearchHistory, Favorite
+from .serializers import RecipeSerializer, UserSerializer, CommentSerializer, SearchHistorySerializer, FavoriteSerializer
+
+
+class FavoriteListCreateView(generics.ListCreateAPIView):
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        recipe_id = request.data.get('recipe_id')
+        if not recipe_id:
+            return Response({"error": "Recipe ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            recipe = Recipe.objects.get(id=recipe_id)
+            favorite, created = Favorite.objects.get_or_create(user=request.user, recipe=recipe)
+            if created:
+                return Response(FavoriteSerializer(favorite).data, status=status.HTTP_201_CREATED)
+            return Response({"message": "Recipe already in favorites"}, status=status.HTTP_200_OK)
+        except Recipe.DoesNotExist:
+            return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class FavoriteDeleteView(generics.DestroyAPIView):
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+    def get_object(self):
+        recipe_id = self.kwargs.get('recipe_id')
+        return get_object_or_404(Favorite, user=self.request.user, recipe__id=recipe_id)
 
 class SearchHistoryViewSet(viewsets.ModelViewSet):
     serializer_class = SearchHistorySerializer
