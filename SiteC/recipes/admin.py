@@ -7,12 +7,12 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'author')  # Фильтры
     search_fields = ('text', 'author__username')  # Поиск по тексту и имени автора
 
-    # Добавляем кастомное действие
+    # Добавляеadм кастомное действие
     actions = ['delete_selected_comments']
 
     def delete_selected_comments(self, request, queryset):
         """
-        Кастомное действие для удаления выбранных комментариев.
+        Кастомное дейстasddвие для удаления выбранных комментариев.
         """
         deleted_count = queryset.count()  # Считаем количество удаляемых комментариев
         queryset.delete()  # Удаляем выбранные комментарии

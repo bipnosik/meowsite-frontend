@@ -1,4 +1,4 @@
-# recipes/models.py
+# recipes/models.pysadsad
 from django.db import models
 from django.contrib.auth.models import User
 
